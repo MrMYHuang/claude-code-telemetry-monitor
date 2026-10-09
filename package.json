@@ -1,0 +1,14 @@
+{
+  "name": "claude-code-telemetry",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "workspaces": [
+    "server",
+    "web"
+  ],
+  "scripts": {
+    "test": "npm -w server test",
+    "build": "npm -w server build"
+  }
+}
