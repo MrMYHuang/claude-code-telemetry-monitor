@@ -2,6 +2,10 @@ import Fastify, { type FastifyInstance, type FastifyRequest } from 'fastify';
 import type { Pool } from 'pg';
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
+import fastifyStatic from '@fastify/static';
+import path from 'node:path';
+import fs from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { ingestRoutes } from './ingest/routes.js';
 import { overviewRoutes } from './api/overview.js';
 import { sessionsRoutes } from './api/sessions.js';
@@ -10,7 +14,30 @@ import { errorsRoutes } from './api/errors.js';
 
 const gunzipAsync = promisify(zlib.gunzip);
 
-export function buildApp(pool: Pool): FastifyInstance {
+export interface BuildAppOptions {
+  webDistPath?: string;
+}
+
+function resolveWebDist(customPath?: string): string | null {
+  if (customPath && fs.existsSync(customPath)) {
+    return customPath;
+  }
+  const currentDir = path.dirname(fileURLToPath(import.meta.url));
+  const candidates = [
+    path.resolve(currentDir, '../../web/dist'),
+    path.resolve(currentDir, '../../../web/dist'),
+    path.resolve(process.cwd(), 'web/dist'),
+    path.resolve(process.cwd(), '../web/dist'),
+  ];
+  for (const candidate of candidates) {
+    if (fs.existsSync(candidate)) {
+      return candidate;
+    }
+  }
+  return null;
+}
+
+export function buildApp(pool: Pool, options?: BuildAppOptions): FastifyInstance {
   const app = Fastify({
     logger: process.env.NODE_ENV !== 'test',
   });
@@ -72,6 +99,32 @@ export function buildApp(pool: Pool): FastifyInstance {
   app.register(sessionsRoutes, { pool });
   app.register(toolsRoutes, { pool });
   app.register(errorsRoutes, { pool });
+
+  const webDist = resolveWebDist(options?.webDistPath);
+  if (webDist) {
+    app.register(fastifyStatic, {
+      root: webDist,
+      prefix: '/',
+      wildcard: false,
+    });
+
+    app.setNotFoundHandler(async (request, reply) => {
+      const url = request.raw.url || '';
+      if (
+        url.startsWith('/api') ||
+        url.startsWith('/v1') ||
+        url.startsWith('/healthz')
+      ) {
+        return reply.status(404).send({ error: 'Not found' });
+      }
+
+      if (request.method === 'GET' || request.method === 'HEAD') {
+        return reply.sendFile('index.html');
+      }
+
+      return reply.status(404).send({ error: 'Not found' });
+    });
+  }
 
   return app;
 }
