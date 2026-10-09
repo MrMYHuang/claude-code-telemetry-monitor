@@ -11,7 +11,8 @@
   "dependencies": {
     "fastify": "^5.2.1",
     "node-pg-migrate": "9.0.0",
-    "pg": "^8.13.3"
+    "pg": "^8.13.3",
+    "zod": "4.6.5"
   },
   "devDependencies": {
     "@testcontainers/postgresql": "12.2.0",

@@ -3,6 +3,10 @@ import type { Pool } from 'pg';
 import { promisify } from 'node:util';
 import zlib from 'node:zlib';
 import { ingestRoutes } from './ingest/routes.js';
+import { overviewRoutes } from './api/overview.js';
+import { sessionsRoutes } from './api/sessions.js';
+import { toolsRoutes } from './api/tools.js';
+import { errorsRoutes } from './api/errors.js';
 
 const gunzipAsync = promisify(zlib.gunzip);
 
@@ -64,6 +68,10 @@ export function buildApp(pool: Pool): FastifyInstance {
   });
 
   app.register(ingestRoutes, { pool });
+  app.register(overviewRoutes, { pool });
+  app.register(sessionsRoutes, { pool });
+  app.register(toolsRoutes, { pool });
+  app.register(errorsRoutes, { pool });
 
   return app;
 }
