@@ -10,11 +10,14 @@
   },
   "dependencies": {
     "fastify": "^5.2.1",
+    "node-pg-migrate": "9.0.0",
     "pg": "^8.13.3"
   },
   "devDependencies": {
+    "@testcontainers/postgresql": "12.2.0",
     "@types/node": "^22.13.9",
     "@types/pg": "^8.11.11",
+    "testcontainers": "12.2.0",
     "tsx": "^4.19.3",
     "typescript": "^5.8.2",
     "vitest": "^3.0.8"

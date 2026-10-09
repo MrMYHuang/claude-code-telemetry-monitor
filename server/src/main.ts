@@ -1,9 +1,11 @@
 import { getConfig } from './config.js';
 import { createPool } from './db/pool.js';
+import { runMigrations } from './db/migrate.js';
 import { buildApp } from './app.js';
 
 async function main(): Promise<void> {
   const config = getConfig();
+  await runMigrations(config.databaseUrl);
   const pool = createPool(config.databaseUrl);
   const app = buildApp(pool);
 

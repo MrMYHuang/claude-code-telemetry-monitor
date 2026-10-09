@@ -32,6 +32,7 @@ RUN npm ci --omit=dev
 
 # Copy compiled JavaScript output
 COPY --from=builder /app/server/dist ./server/dist
+COPY server/migrations ./server/migrations
 
 WORKDIR /app/server
 
