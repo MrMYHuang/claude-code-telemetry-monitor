@@ -1,0 +1,69 @@
+{
+  "resourceLogs": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": { "stringValue": "claude-code" }
+          },
+          {
+            "key": "host.name",
+            "value": { "stringValue": "dev-machine" }
+          }
+        ]
+      },
+      "scopeLogs": [
+        {
+          "scope": {
+            "name": "claude-code-telemetry",
+            "version": "1.0.0"
+          },
+          "logRecords": [
+            {
+              "timeUnixNano": "1770638400000000000",
+              "attributes": [
+                { "key": "event.name", "value": { "stringValue": "api_request" } },
+                { "key": "session.id", "value": { "stringValue": "sess-001" } },
+                { "key": "prompt.id", "value": { "stringValue": "prompt-001" } },
+                { "key": "model", "value": { "stringValue": "claude-3-5-sonnet-20241022" } },
+                { "key": "cost_usd", "value": { "doubleValue": 0.012 } },
+                { "key": "input_tokens", "value": { "intValue": "100" } },
+                { "key": "output_tokens", "value": { "intValue": "50" } },
+                { "key": "duration_ms", "value": { "doubleValue": 1250.5 } },
+                { "key": "event.timestamp", "value": { "stringValue": "2026-10-09T10:00:00.000Z" } }
+              ]
+            },
+            {
+              "timeUnixNano": "1770638401000000000",
+              "attributes": [
+                { "key": "event.name", "value": { "stringValue": "claude_code.tool_result" } },
+                { "key": "session.id", "value": { "stringValue": "sess-001" } },
+                { "key": "tool_name", "value": { "stringValue": "bash" } },
+                { "key": "success", "value": { "boolValue": true } },
+                { "key": "duration_ms", "value": { "doubleValue": 45.2 } }
+              ]
+            },
+            {
+              "timeUnixNano": "1770638402000000000",
+              "attributes": [
+                { "key": "event.name", "value": { "stringValue": "claude_code.user_prompt" } },
+                { "key": "session.id", "value": { "stringValue": "sess-001" } },
+                { "key": "prompt.id", "value": { "stringValue": "prompt-001" } },
+                { "key": "prompt", "value": { "stringValue": "Fix the bug in src/main.ts" } }
+              ]
+            },
+            {
+              "timeUnixNano": "1770638403000000000",
+              "attributes": [
+                { "key": "event.name", "value": { "stringValue": "custom.experimental_event" } },
+                { "key": "session.id", "value": { "stringValue": "sess-001" } },
+                { "key": "custom_field", "value": { "stringValue": "val_123" } }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
