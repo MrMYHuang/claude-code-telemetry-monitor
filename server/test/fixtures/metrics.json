@@ -1,0 +1,121 @@
+{
+  "resourceMetrics": [
+    {
+      "resource": {
+        "attributes": [
+          {
+            "key": "service.name",
+            "value": { "stringValue": "claude-code" }
+          },
+          {
+            "key": "host.name",
+            "value": { "stringValue": "dev-machine" }
+          }
+        ]
+      },
+      "scopeMetrics": [
+        {
+          "scope": {
+            "name": "claude-code-telemetry",
+            "version": "1.0.0"
+          },
+          "metrics": [
+            {
+              "name": "claude_code.token.usage",
+              "description": "Total token usage by type and model",
+              "unit": "1",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1770638400000000000",
+                    "asInt": "42",
+                    "attributes": [
+                      { "key": "type", "value": { "stringValue": "input" } },
+                      { "key": "model", "value": { "stringValue": "claude-3-5-sonnet-20241022" } },
+                      { "key": "session.id", "value": { "stringValue": "sess-001" } }
+                    ]
+                  },
+                  {
+                    "timeUnixNano": "1770638401000000000",
+                    "asInt": "28",
+                    "attributes": [
+                      { "key": "type", "value": { "stringValue": "output" } },
+                      { "key": "model", "value": { "stringValue": "claude-3-5-sonnet-20241022" } },
+                      { "key": "session.id", "value": { "stringValue": "sess-001" } }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "claude_code.cost.usage",
+              "description": "Cost usage in USD",
+              "unit": "USD",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1770638402000000000",
+                    "asDouble": 0.5,
+                    "attributes": [
+                      { "key": "model", "value": { "stringValue": "claude-3-5-sonnet-20241022" } },
+                      { "key": "session_id", "value": { "stringValue": "sess-001" } }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "claude_code.lines_of_code.count",
+              "description": "Lines of code modified",
+              "unit": "1",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1770638403000000000",
+                    "asInt": "120",
+                    "attributes": [
+                      { "key": "session.id", "value": { "stringValue": "sess-001" } },
+                      { "key": "type", "value": { "stringValue": "added" } }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "claude_code.session.count",
+              "description": "Session count",
+              "unit": "1",
+              "sum": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1770638404000000000",
+                    "asInt": "1",
+                    "attributes": [
+                      { "key": "session.id", "value": { "stringValue": "sess-001" } }
+                    ]
+                  }
+                ]
+              }
+            },
+            {
+              "name": "custom.queue_depth",
+              "description": "Custom queue depth gauge",
+              "unit": "1",
+              "gauge": {
+                "dataPoints": [
+                  {
+                    "timeUnixNano": "1770638405000000000",
+                    "asDouble": 17.5,
+                    "attributes": [
+                      { "key": "queue_name", "value": { "stringValue": "ingest_tasks" } }
+                    ]
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -76,3 +76,46 @@ export function attrsToObject(
   }
   return result;
 }
+
+export function parseNumber(val: unknown): number | null {
+  if (val === null || val === undefined) return null;
+  if (typeof val === 'number') return Number.isNaN(val) ? null : val;
+  if (typeof val === 'string') {
+    const trimmed = val.trim();
+    if (trimmed === '') return null;
+    const num = Number(trimmed);
+    return Number.isNaN(num) ? null : num;
+  }
+  return null;
+}
+
+export function parseTimestamp(
+  eventTimestamp: unknown,
+  timeUnixNano: unknown,
+): Date {
+  if (eventTimestamp !== undefined && eventTimestamp !== null) {
+    if (typeof eventTimestamp === 'string' || typeof eventTimestamp === 'number') {
+      const d = new Date(eventTimestamp);
+      if (!Number.isNaN(d.getTime())) {
+        return d;
+      }
+    }
+  }
+  if (timeUnixNano !== undefined && timeUnixNano !== null) {
+    try {
+      const nanoStr = String(timeUnixNano).trim();
+      if (nanoStr !== '') {
+        const nanoBigInt = BigInt(nanoStr);
+        const ms = Number(nanoBigInt / 1_000_000n);
+        const d = new Date(ms);
+        if (!Number.isNaN(d.getTime())) {
+          return d;
+        }
+      }
+    } catch {
+      // fallback
+    }
+  }
+  return new Date();
+}
+
