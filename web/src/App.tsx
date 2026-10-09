@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { Activity, LayoutDashboard, Layers, Wrench, AlertCircle } from 'lucide-react';
 import type { RangeOption } from './lib/format';
 import { RangePicker } from './components/RangePicker';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import { Overview } from './pages/Overview';
 import { Sessions } from './pages/Sessions';
 import { SessionDetail } from './pages/SessionDetail';
@@ -119,7 +120,11 @@ export const App: React.FC = () => {
         </div>
       </header>
 
-      <main className="app-main">{renderContent()}</main>
+      <main className="app-main">
+        <ErrorBoundary key={currentPath}>
+          {renderContent()}
+        </ErrorBoundary>
+      </main>
     </div>
   );
 };

@@ -61,6 +61,7 @@ export const Overview: React.FC<OverviewProps> = ({ range }) => {
     totals.outputTokens === 0 &&
     totals.sessions === 0 &&
     totals.toolCalls === 0 &&
+    totals.errorRate === 0 &&
     series.length === 0;
 
   if (isEmpty) {

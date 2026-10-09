@@ -46,6 +46,7 @@ describe('format helpers', () => {
     it('formats durations over 1 minute in minutes and seconds', () => {
       expect(formatDuration(65000)).toBe('1m 5s');
       expect(formatDuration(125000)).toBe('2m 5s');
+      expect(formatDuration(119600)).toBe('2m 0s');
     });
   });
 
