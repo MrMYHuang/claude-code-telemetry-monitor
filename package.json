@@ -9,6 +9,6 @@
   ],
   "scripts": {
     "test": "npm -w server test",
-    "build": "npm -w server build"
+    "build": "npm -w server run build"
   }
 }
