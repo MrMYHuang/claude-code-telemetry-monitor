@@ -79,15 +79,16 @@ export function attrsToObject(
 
 export function parseNumber(val: unknown): number | null {
   if (val === null || val === undefined) return null;
-  if (typeof val === 'number') return Number.isNaN(val) ? null : val;
+  if (typeof val === 'number') return Number.isFinite(val) ? val : null;
   if (typeof val === 'string') {
     const trimmed = val.trim();
     if (trimmed === '') return null;
     const num = Number(trimmed);
-    return Number.isNaN(num) ? null : num;
+    return Number.isFinite(num) ? num : null;
   }
   return null;
 }
+
 
 export function parseTimestamp(
   eventTimestamp: unknown,

@@ -246,8 +246,69 @@ describe('parseMetrics', () => {
                       {
                         asDouble: 0, // zero asDouble numeric
                       },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const rows = parseMetrics(payload);
+    expect(rows).toHaveLength(4);
+    expect(rows[0].value).toBe(42);
+    expect(Number.isNaN(rows[0].ts.getTime())).toBe(false);
+    expect(rows[1].value).toBe(3.14);
+    expect(rows[2].value).toBe(0);
+    expect(rows[3].value).toBe(0);
+  });
+
+  it('skips data points without a valid finite value while keeping valid neighbours', () => {
+    const payload = {
+      resourceMetrics: [
+        {
+          scopeMetrics: [
+            {
+              metrics: [
+                {
+                  name: 'test.metric',
+                  sum: {
+                    dataPoints: [
                       {
-                        asInt: '', // empty string
+                        // valueless data point (no asInt, no asDouble)
+                        timeUnixNano: '1770638400000000000',
+                      },
+                      {
+                        // valid neighbour
+                        timeUnixNano: '1770638400000000000',
+                        asInt: '10',
+                      },
+                      {
+                        // asInt 'abc' unparseable
+                        timeUnixNano: '1770638400000000000',
+                        asInt: 'abc',
+                      },
+                      {
+                        // asInt '' empty string
+                        timeUnixNano: '1770638400000000000',
+                        asInt: '',
+                      },
+                      {
+                        // asDouble Infinity
+                        timeUnixNano: '1770638400000000000',
+                        asDouble: Infinity,
+                      },
+                      {
+                        // asDouble '-Infinity' string
+                        timeUnixNano: '1770638400000000000',
+                        asDouble: '-Infinity',
+                      },
+                      {
+                        // another valid neighbour
+                        timeUnixNano: '1770638400000000000',
+                        asDouble: 2.5,
                       },
                     ],
                   },
@@ -260,12 +321,9 @@ describe('parseMetrics', () => {
     };
 
     const rows = parseMetrics(payload);
-    expect(rows).toHaveLength(5);
-    expect(rows[0].value).toBe(42);
-    expect(Number.isNaN(rows[0].ts.getTime())).toBe(false);
-    expect(rows[1].value).toBe(3.14);
-    expect(rows[2].value).toBe(0);
-    expect(rows[3].value).toBe(0);
-    expect(rows[4].value).toBe(0);
+    expect(rows).toHaveLength(2);
+    expect(rows[0].value).toBe(10);
+    expect(rows[1].value).toBe(2.5);
   });
 });
+

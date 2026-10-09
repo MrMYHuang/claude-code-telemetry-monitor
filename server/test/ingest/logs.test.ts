@@ -453,4 +453,33 @@ describe('parseLogs', () => {
     expect(parsedA[0].attributes).not.toHaveProperty('body');
     expect(parsedB[0].attributes).not.toHaveProperty('body');
   });
+
+  it('parses Infinity / -Infinity numeric values as null', () => {
+    const payload = {
+      resourceLogs: [
+        {
+          scopeLogs: [
+            {
+              logRecords: [
+                {
+                  timeUnixNano: '1770638400000000000',
+                  attributes: [
+                    { key: 'event.name', value: { stringValue: 'api_request' } },
+                    { key: 'cost_usd', value: { doubleValue: Infinity } },
+                    { key: 'duration_ms', value: { stringValue: 'Infinity' } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const rows = parseLogs(payload);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].costUsd).toBeNull();
+    expect(rows[0].durationMs).toBeNull();
+  });
 });
+

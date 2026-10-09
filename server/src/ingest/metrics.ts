@@ -15,7 +15,7 @@ export type MetricRow = {
   attributes: Record<string, unknown>;
 };
 
-function parseDataPointValue(point: Record<string, unknown>): number {
+function parseDataPointValue(point: Record<string, unknown>): number | null {
   const rawDouble = point.asDouble !== undefined ? point.asDouble : point.as_double;
   if (rawDouble !== undefined && rawDouble !== null) {
     const val = parseNumber(rawDouble);
@@ -33,8 +33,9 @@ function parseDataPointValue(point: Record<string, unknown>): number {
     if (val !== null) return val;
   }
 
-  return 0;
+  return null;
 }
+
 
 export function parseMetrics(payload: unknown): MetricRow[] {
   const rows: MetricRow[] = [];
@@ -119,6 +120,9 @@ export function parseMetrics(payload: unknown): MetricRow[] {
           };
 
           const value = parseDataPointValue(point as Record<string, unknown>);
+          if (value === null) {
+            continue;
+          }
 
           const rawSession =
             mergedAttrs['session.id'] ?? mergedAttrs['session_id'];
