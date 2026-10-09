@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   AlertTriangle,
@@ -23,6 +23,10 @@ const PAGE_SIZE = 25;
 
 export const Errors: React.FC<ErrorsProps> = ({ range }) => {
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    setPage(0);
+  }, [range]);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['errors', range, page],

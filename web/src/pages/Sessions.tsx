@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import {
   Layers,
@@ -29,6 +29,10 @@ export const Sessions: React.FC<SessionsProps> = ({ range }) => {
   const [page, setPage] = useState(0);
   const [sortField, setSortField] = useState<SortField>('recency');
   const [sortOrder, setSortOrder] = useState<SortOrder>('desc');
+
+  useEffect(() => {
+    setPage(0);
+  }, [range]);
 
   const { data, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['sessions', range, page],

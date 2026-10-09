@@ -47,10 +47,10 @@ export const Timeline: React.FC<TimelineProps> = ({ events }) => {
     return true;
   });
 
-  const maxDuration = Math.max(
-    ...events.map((e) => (typeof e.durationMs === 'number' && e.durationMs > 0 ? e.durationMs : 0)),
-    100,
-  );
+  const maxDuration = events.reduce((max, e) => {
+    const d = typeof e.durationMs === 'number' && e.durationMs > 0 ? e.durationMs : 0;
+    return d > max ? d : max;
+  }, 100);
 
   const formatTimestamp = (ts: string) => {
     try {
