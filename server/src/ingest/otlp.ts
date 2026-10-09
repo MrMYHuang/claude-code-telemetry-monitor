@@ -31,10 +31,16 @@ export function extractAnyValue(val: unknown): unknown {
       return v.stringValue;
     }
     if (v.intValue !== undefined) {
+      if (typeof v.intValue === 'string' && v.intValue.trim() === '') {
+        return undefined;
+      }
       const num = Number(v.intValue);
       return Number.isNaN(num) ? v.intValue : num;
     }
     if (v.doubleValue !== undefined) {
+      if (typeof v.doubleValue === 'string' && (v.doubleValue as string).trim() === '') {
+        return undefined;
+      }
       const num = Number(v.doubleValue);
       return Number.isNaN(num) ? v.doubleValue : num;
     }

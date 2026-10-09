@@ -88,12 +88,15 @@ function computeDedupKey(
   eventName: string,
   sessionId: string | null,
   attributes: Record<string, unknown>,
+  bodyVal?: unknown,
 ): string {
   const tsIso = ts.toISOString();
   const sessionStr = sessionId ?? '';
   const sortedAttrs = sortObjectKeys(attributes);
   const attrsJson = JSON.stringify(sortedAttrs);
-  const raw = `${tsIso}|${eventName}|${sessionStr}|${attrsJson}`;
+  const bodyJson =
+    bodyVal !== undefined ? JSON.stringify(sortObjectKeys(bodyVal)) : '';
+  const raw = `${tsIso}|${eventName}|${sessionStr}|${attrsJson}|${bodyJson}`;
   return createHash('sha256').update(raw).digest('hex');
 }
 
@@ -144,25 +147,28 @@ export function parseLogs(payload: unknown): EventRow[] {
           ...recordAttrs,
         };
 
-        if (rec.body !== undefined && rec.body !== null) {
-          const bodyVal = extractAnyValue(rec.body);
-          if (bodyVal !== undefined && mergedAttrs.body === undefined) {
-            mergedAttrs.body = bodyVal;
-          }
-        }
+        const bodyVal =
+          rec.body !== undefined && rec.body !== null
+            ? extractAnyValue(rec.body)
+            : undefined;
 
         const rawEventName =
-          mergedAttrs['event.name'] ??
-          mergedAttrs['event_name'] ??
-          (typeof rec.body === 'string'
-            ? rec.body
-            : (rec.body as { stringValue?: string } | undefined)?.stringValue) ??
-          'unknown';
+          mergedAttrs['event.name'] ?? mergedAttrs['event_name'];
 
-        const strName = String(rawEventName);
-        const eventName = strName.startsWith('claude_code.')
-          ? strName.slice('claude_code.'.length)
-          : strName;
+        let eventName: string;
+        if (rawEventName !== undefined && rawEventName !== null) {
+          const strName = String(rawEventName);
+          eventName = strName.startsWith('claude_code.')
+            ? strName.slice('claude_code.'.length)
+            : strName;
+        } else if (
+          typeof bodyVal === 'string' &&
+          /^claude_code\.[a-z0-9_]+$/.test(bodyVal)
+        ) {
+          eventName = bodyVal.slice('claude_code.'.length);
+        } else {
+          eventName = 'unknown';
+        }
 
         const rawSession =
           mergedAttrs['session.id'] ?? mergedAttrs['session_id'];
@@ -235,7 +241,13 @@ export function parseLogs(payload: unknown): EventRow[] {
           delete attributes['prompt'];
         }
 
-        const dedupKey = computeDedupKey(ts, eventName, sessionId, attributes);
+        const dedupKey = computeDedupKey(
+          ts,
+          eventName,
+          sessionId,
+          attributes,
+          bodyVal,
+        );
 
         rows.push({
           ts,

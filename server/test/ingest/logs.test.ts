@@ -36,6 +36,18 @@ describe('attrsToObject', () => {
     expect(attrsToObject([])).toEqual({});
     expect(attrsToObject(undefined)).toEqual({});
   });
+
+  it('treats empty/whitespace-only intValue as non-numeric instead of converting to 0', () => {
+    const attrs = [
+      { key: 'empty_int', value: { intValue: '' } },
+      { key: 'whitespace_int', value: { intValue: '   ' } },
+    ];
+    const res = attrsToObject(attrs);
+    expect(res).not.toHaveProperty('empty_int', 0);
+    expect(res).not.toHaveProperty('whitespace_int', 0);
+    expect(res.empty_int).toBeUndefined();
+    expect(res.whitespace_int).toBeUndefined();
+  });
 });
 
 describe('parseLogs', () => {
@@ -308,5 +320,137 @@ describe('parseLogs', () => {
 
     const rows = parseLogs(payload);
     expect(rows[0].ts.getTime()).toBe(1700000000000);
+  });
+
+  it('drops body from stored event row and attributes (privacy requirement)', () => {
+    const payload = {
+      resourceLogs: [
+        {
+          scopeLogs: [
+            {
+              logRecords: [
+                {
+                  timeUnixNano: '1770638400000000000',
+                  body: { stringValue: 'secret prompt text' },
+                  attributes: [
+                    { key: 'event.name', value: { stringValue: 'claude_code.user_prompt' } },
+                    { key: 'session.id', value: { stringValue: 'sess-p' } },
+                    { key: 'prompt', value: { stringValue: 'secret prompt text' } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const rows = parseLogs(payload);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].attributes).not.toHaveProperty('body');
+    expect(JSON.stringify(rows[0])).not.toContain('secret prompt text');
+  });
+
+  it('extracts eventName from body when matching /^claude_code\\.[a-z0-9_]+$/ with no event.name attribute', () => {
+    const payload = {
+      resourceLogs: [
+        {
+          scopeLogs: [
+            {
+              logRecords: [
+                {
+                  timeUnixNano: '1770638400000000000',
+                  body: { stringValue: 'claude_code.api_request' },
+                  attributes: [
+                    { key: 'session.id', value: { stringValue: 'sess-1' } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const rows = parseLogs(payload);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].eventName).toBe('api_request');
+  });
+
+  it('sets eventName to unknown when body is arbitrary text and no event.name attribute is present', () => {
+    const payload = {
+      resourceLogs: [
+        {
+          scopeLogs: [
+            {
+              logRecords: [
+                {
+                  timeUnixNano: '1770638400000000000',
+                  body: { stringValue: 'some arbitrary body text that should not become eventName' },
+                  attributes: [
+                    { key: 'session.id', value: { stringValue: 'sess-1' } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const rows = parseLogs(payload);
+    expect(rows).toHaveLength(1);
+    expect(rows[0].eventName).toBe('unknown');
+  });
+
+  it('two records differing only in body produce different dedupKey', () => {
+    const recordA = {
+      resourceLogs: [
+        {
+          scopeLogs: [
+            {
+              logRecords: [
+                {
+                  timeUnixNano: '1770638400000000000',
+                  body: { stringValue: 'body text alpha' },
+                  attributes: [
+                    { key: 'event.name', value: { stringValue: 'tool_result' } },
+                    { key: 'session.id', value: { stringValue: 'sess-1' } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const recordB = {
+      resourceLogs: [
+        {
+          scopeLogs: [
+            {
+              logRecords: [
+                {
+                  timeUnixNano: '1770638400000000000',
+                  body: { stringValue: 'body text beta' },
+                  attributes: [
+                    { key: 'event.name', value: { stringValue: 'tool_result' } },
+                    { key: 'session.id', value: { stringValue: 'sess-1' } },
+                  ],
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const parsedA = parseLogs(recordA);
+    const parsedB = parseLogs(recordB);
+    expect(parsedA[0].dedupKey).not.toBe(parsedB[0].dedupKey);
+    // Also verify neither row contains the body in attributes
+    expect(parsedA[0].attributes).not.toHaveProperty('body');
+    expect(parsedB[0].attributes).not.toHaveProperty('body');
   });
 });
